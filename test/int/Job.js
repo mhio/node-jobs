@@ -45,5 +45,32 @@ describe('int::mhio::job::Job', function(){
       })
     })
 
+    it('should set expires at', function(){
+      let now = Date.now()
+      job.setExpiresAt( now )
+      expect( job.expires_at ).to.equal( now )
+    })
+
+    it('should set expires at', function(){
+      let now = Date.now()
+      job.setExpiresAt( now )
+      return job.run().then(()=>{
+        expect( job.expires_at ).to.eql( now)
+      })
+    })
+
+    it('should set expires in', function(){
+      job.setExpiresIn( 100 )
+      expect( job.expires_in ).to.equal( 100 )
+    })
+
+    it('should set expires at', function(){
+      job.setExpiresIn( 100 )
+      return job.run().then(()=>{
+        expect( job.expires_at ).to.be.greaterThan( Date.now() )
+      })
+    })
+
   })
+
 })

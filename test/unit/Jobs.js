@@ -34,7 +34,7 @@ describe('unit::mhio::job::Jobs', function(){
     it('should not delete job', function(){
       expect( jobs.delete('17') ).to.equal(undefined)
     })
-
+    
   })
   
 })

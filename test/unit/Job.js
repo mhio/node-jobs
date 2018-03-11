@@ -38,7 +38,9 @@ describe('unit::mhio::job::Job', function(){
         expires_at: undefined,
         expires_in: 28800000,
       })
+
     })
 
   })
+  
 })
