@@ -1,6 +1,6 @@
 {
   "name": "@mhio/jobs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Job/Process runner",
   "main": "src/index.js",
   "author": "Matt Hoyle",
