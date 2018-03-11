@@ -2,16 +2,22 @@ const crypto = require('crypto')
 const debug = require('debug')('mhio:job:Job')
 const { Spawn, SpawnException } = require('@mhio/spawn')
 
-/* JobException for wrapping any Error objects raised here */
+/** JobException for wrapping any Error objects raised here */
 class JobException extends SpawnException {}
 
-/* Job */
+/** A Job to be run */
 class Job extends Spawn {
   
+  /** Class static initialisation */
   static _classInit(){
     this.exception_type = JobException
   }
 
+  /**
+   * Represents a job to be spawned.
+   * @constructor
+   * @param {object} options - The options for object for Job/Spawn
+   */
   constructor( options = {} ){
     super(options)
     this.id = crypto.randomBytes(3).toString('hex')
@@ -22,17 +28,17 @@ class Job extends Spawn {
 
   get expires_at(){ return this._expires_at }
 
-  /*
+  /**
    *  @summary Convert object to JSON object for `JSON.stringify()`
-   *  @returns {object}
+   *  @returns {number} The timestamp to expire at
    */
   setExpiresAt( ts_val ){
     return this._expires_at = ts_val
   }
 
-  /*
+  /**
    *  @summary Push the expiry back again by expires
-   *  @returns {number} - New ms expiry time stamp
+   *  @returns {number} - The new millisecond timestamp to expire at
    */
   pushExpiry( ms_val ){
     if ( !ms_val ) ms_val = this.expires_in
@@ -41,25 +47,25 @@ class Job extends Spawn {
 
   get expires_in(){ return this._expires_in }
 
-  /*
+  /**
    *  @summary Set the expires in ms value
-   *  @returns {number} - New ms until expiry time
+   *  @returns {number} - New milliseconds until expiry time
    */
   setExpiresIn( ms_val ){
     return this._expires_in = ms_val
   }
 
-  /*
+  /**
    *  @summary Set the expires in ms value, ignoring falsey values
-   *  @returns {number} - New ms expiry time stamp
+   *  @returns {number} - New milliseconds until expiry time
    */
   possiblySetExpiresIn( ms_val ){
     if ( ms_val === undefined || ms_val === null ) return
     return this._expires_in = ms_val
   }
 
-  /*
-   *  @summary Add extra run processing to Spawn for expires
+  /**
+   *  @summary Add extra run processing on top of `Spawn` for expires
    */
   handleRunCallback(){
     // Move this to Jobs? has no real place here
@@ -70,9 +76,9 @@ class Job extends Spawn {
     return super.handleRunCallback()
   }
 
-  /*
+  /**
    *  @summary Convert object to JSON object for `JSON.stringify()`
-   *  @returns {object}
+   *  @returns {object} The instance object to be turned into JSON
    */
   toJSON(){
     let o = super.toJSON()
@@ -82,6 +88,7 @@ class Job extends Spawn {
   }
 
 }
+
 Job._classInit()
 
 module.exports = { Job, JobException }

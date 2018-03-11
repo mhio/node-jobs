@@ -8,7 +8,7 @@ class Jobs {
     this.jobs = {}
   }
 
-  /*
+  /**
    *  @summary List all job ids in array
    *  @returns {Array}
    */
@@ -16,7 +16,7 @@ class Jobs {
     return Object.keys(this.jobs)
   }
 
-  /*
+  /**
    *  @summary Run a function for each job. 
    *  @description Callback function is passed `(job, id)`
    *  @returns undefined
@@ -25,7 +25,7 @@ class Jobs {
     return this.list().forEach(key => cb(this.jobs[key], key))
   }
 
-  /*
+  /**
    *  @summary Create a job and track it
    *  @returns {Job}
    */
@@ -35,7 +35,7 @@ class Jobs {
     return job
   }
 
-  /*
+  /**
    *  @summary Add a job
    *  @param {Job} job - Job to add to tracking
    *  @returns {Job}
@@ -46,7 +46,7 @@ class Jobs {
     return this.jobs[job.id] = job
   }
 
-  /*
+  /**
    *  @summary Get a job by id
    *  @param {string} id - ID of job to get
    *  @returns Job
@@ -56,7 +56,7 @@ class Jobs {
     return this.jobs[id]
   }
 
-  /*
+  /**
    *  @summary Delete a job by id
    *  @param {string} id - ID of job to delete
    *  @returns Job|undefined
