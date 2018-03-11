@@ -1,4 +1,4 @@
-const debug = require('debug')('mh:nodeshell:Jobs')
+const debug = require('debug')('mhio:job:Jobs')
 
 const { Job } = require('./Job')
 
