@@ -3,6 +3,7 @@ const cp = require('child_process')
 const debug = require('debug')('mhio:job:Job')
 const { Exception } = require('@mhio/exception')
 
+/* JobException for wrapping any Error objects raised here */
 class JobException extends Exception {
   constructor( message, opts = {} ){
     super(message, opts)
@@ -14,6 +15,7 @@ class JobException extends Exception {
   }
 }
 
+/* Job */
 class Job {
   
   static get ms_minute(){ return 60000 } // 60 * 1000
@@ -34,6 +36,10 @@ class Job {
     this._exit_cb = options.exit_cb
     this._stdout_cb = options.stdout_cb
     this._stderr_cb = options.stderr_cb
+    
+    this._ignore_exit_code = (options.ignore_exit_code !== undefined)
+      ? Boolean(options.ignore_exit_code)
+      : false
 
     if ( options.command ) this.setCommand(options.command) // array of [ cmd, ...arg ]
   }
@@ -99,15 +105,42 @@ class Job {
     return this._error_cb = cb
   }
 
+  get ignore_exit_code(){ return this._ignore_exit_code }
+  ignoreExitCode( bool = true ){
+    return this._ignore_exit_code = Boolean(bool)
+  }
 
 
+  /*
+   *  @summary Handle `spawn` stdout processing
+   */
+  handleStdout(data){
+    this.output.push([ 1, data.toString() ])
+    if ( this._stdout_cb ) this._stdout_cb(data)
+  }
 
 
+  /*
+   *  @summary Handle `spawn` stderr processing
+   */
+  handleStderr(data){
+    this.output.push([ 2, data.toString() ])
+    if ( this._stderr_cb ) this._stderr_cb(data)
+  }
 
+  /*
+   *  @summary Run a process with spawn, turn it into a promise
+   *  @returns {promise}
+   */
   run(){
     return new Promise((resolve, reject)=>{
       let proc = this.proc = cp.spawn(this.spawn_cmd, this.spawn_args)
+
+      // Setup
+      this._running = true
+      let output = this._output
       
+      // Timeouts
       if ( this._timeout_in ) this.setTimeoutAt( Date.now() + this._timeout_in )
 
       if ( this._timeout_at ) {
@@ -124,29 +157,27 @@ class Job {
         }, ms_till_timeout)
       }
 
-      this._running = true
-      let output = this._output
-
-      proc.stdout.on('data', data => {
-        output.push([ 1, data.toString() ])
-        if ( this._stdout_cb ) this._stdout_cb(data)
-      })
+      // Handle output
+      proc.stdout.on('data', this.handleStdout.bind(this))
+      proc.stderr.on('data', this.handleStderr.bind(this))
       
-      proc.stderr.on('data', data => {
-        output.push([ 2, data.toString() ])
-        if ( this._stderr_cb ) this._stderr_cb(data)
-      })
-      
-      proc.on('close', exit_code => {
+      // Handle process close
+      proc.on('close', (exit_code, signal) => {
         this._running = false
 
-        if ( exit_code === null && proc.killed ) exit_code = 128 + 15
+        // `process.kill` somehow caused a `null` exit code
+        if ( exit_code === null && proc.killed ) {
+          debug('signal', signal)
+          exit_code = 128 + 15
+        }
 
         this.exit_code = exit_code
         output.push([ 3, exit_code ])
 
+        // Cancel timeouts
         if ( this._kill_timer ) clearTimeout(this._kill_timer)
         
+        // Move this to Jobs? has no real place here
         this._expires_at = ( this._expires_at === undefined )
           ? (Date.now() + this._expires_in)
           : this.expires_at
@@ -155,27 +186,35 @@ class Job {
           resolve(this)
         } else {
           let err = this.errors[0]
-          if (!err) err = new Error('Job process failed')
+          if (!err) err = new JobException(`Command exited with: "${exit_code}"`)
           reject(err)
         }
         if ( this._close_cb ) this._close_cb(exit_code)
       })
       
+      // Handle error events into `JobException`s
       proc.on('error', err => {
+        let error = null
         if ( err.code === 'ENOENT' && /^spawn /.exec(err.syscall) ){
-          let error = new JobException(`Command not found: "${this.spawn_cmd}"`) // ${this.pwd}`)
-          error.error = err
-          err = error
+          error = new JobException(`Command not found: "${this.spawn_cmd}"`) // ${this.pwd}`)
         }
-        debug('job err', err)
-        //err.stack = err.stack
-        output.push([ 4, err ])
-        this._errors.push(err)
-        if ( this._error_cb ) this._error_cb(err)
+        else {
+          error = new JobException(`Command failed: "${this.spawn_cmd}" "${this.spawn_args.join('" "')}"`)
+        }
+
+        error.error = err
+        debug('job err', error)
+        output.push([ 4, error ])
+        this._errors.push(error)
+        if ( this._error_cb ) this._error_cb(error)
       })      
     })
   }
 
+  /*
+   *  @summary Convert object to JSON object for `JSON.stringify()`
+   *  @returns {object}
+   */
   toJSON(){
     let o = {}
     o.command = this._command
