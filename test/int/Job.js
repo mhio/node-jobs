@@ -71,6 +71,25 @@ describe('int::mhio::job::Job', function(){
       })
     })
 
+    it('should possibly set expires in for value', function(){
+      job.possiblySetExpiresIn( 100 )
+      expect( job.expires_in ).to.equal( 100 )
+    })
+
+    it('should not possibly set expires in for null', function(){
+      job.setExpiresIn( 100 )
+      job.possiblySetExpiresIn( null )
+      expect( job.expires_in ).to.equal( 100 )
+    })
+
+    it('should push the expiry date', function(){
+      let at = Date.now()
+      job.setExpiresAt( at )
+      job.setExpiresIn( 1000 )
+      job.pushExpiry( 1000 )
+      expect( job.expires_at ).to.equal( at + 1000 )
+    })
+
   })
 
 })

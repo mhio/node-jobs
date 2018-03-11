@@ -35,7 +35,7 @@ class Job extends Spawn {
    */
   pushExpiry( ms_val ){
     if ( !ms_val ) ms_val = this.expires_in
-    return this.expires_at = Date.now() + ms_val
+    return this._expires_at = Date.now() + ms_val
   }
 
   get expires_in(){ return this._expires_in }
