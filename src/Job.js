@@ -45,7 +45,7 @@ class Job extends Spawn {
   }
 
   /*
-   *  @summary Add extra run processing
+   *  @summary Add extra run processing to Spawn for expires
    */
   handleRunCallback(){
     // Move this to Jobs? has no real place here
@@ -53,7 +53,7 @@ class Job extends Spawn {
       ? (Date.now() + this._expires_in)
       : this.expires_at
 
-    super()
+    return super.handleRunCallback()
   }
 
   /*
@@ -61,7 +61,7 @@ class Job extends Spawn {
    *  @returns {object}
    */
   toJSON(){
-    let o = super()
+    let o = super.toJSON()
     o.expires_at = this._expires_at
     o.expires_in = this._expires_in
     return o

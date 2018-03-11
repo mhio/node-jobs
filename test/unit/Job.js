@@ -31,6 +31,8 @@ describe('unit::mhio::job::Job', function(){
         errors: [],
         output: [],
         running: false,
+        finished: false,
+        started: false,
         timeout_at: undefined,
         timeout_in: undefined,
         expires_at: undefined,
