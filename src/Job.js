@@ -27,18 +27,38 @@ class Job extends Spawn {
   }
 
   get expires_at(){ return this._expires_at }
+
+  /*
+   *  @summary Convert object to JSON object for `JSON.stringify()`
+   *  @returns {object}
+   */
   setExpiresAt( ts_val ){
     return this._expires_at = ts_val
   }
+
+  /*
+   *  @summary Push the expiry back again by expires
+   *  @returns {number} - New ms expiry time stamp
+   */
   pushExpiry( ms_val ){
     if ( !ms_val ) ms_val = this.expires_in
-    this.expires_at = Date.now() + ms_val
+    return this.expires_at = Date.now() + ms_val
   }
 
   get expires_in(){ return this._expires_in }
+
+  /*
+   *  @summary Set the expires in ms value
+   *  @returns {number} - New ms until expiry time
+   */
   setExpiresIn( ms_val ){
     return this._expires_in = ms_val
   }
+
+  /*
+   *  @summary Set the expires in ms value, ignoring falsey values
+   *  @returns {number} - New ms expiry time stamp
+   */
   possiblySetExpiresIn( ms_val ){
     if ( ms_val === undefined || ms_val === null ) return
     return this._expires_in = ms_val
