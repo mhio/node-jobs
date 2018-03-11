@@ -23,6 +23,11 @@ describe('int::mhio::job::Job', function(){
       return job.run().should.be.rejectedWith(/Command not found/)
     })
 
+    it('should fail to run a bad binary', function(){
+      job.setCommand([ 'false' ])
+      return job.run().should.be.rejectedWith(/Command exited with: "1"/)
+    })
+
     it('should run a fixed path', function(){
       job.setCommand([ '/bin/sh', '-c', 'true' ])
       return job.run().should.become(job)
