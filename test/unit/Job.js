@@ -25,5 +25,18 @@ describe('unit::mhio::job::Job', function(){
       expect( fn ).to.throw(/not an Array/)
     })
 
+    it('should dump json', function(){
+      expect( job.toJSON() ).to.eql({
+        command: [ 'true' ],
+        errors: [],
+        output: [],
+        running: false,
+        timeout_at: undefined,
+        timeout_in: undefined,
+        expires_at: undefined,
+        expires_in: 28800000,
+      })
+    })
+
   })
 })

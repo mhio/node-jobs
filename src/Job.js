@@ -1,6 +1,18 @@
 const crypto = require('crypto')
 const cp = require('child_process')
 const debug = require('debug')('mhio:job:Job')
+const { Exception } = require('@mhio/exception')
+
+class JobException extends Exception {
+  constructor( message, opts = {} ){
+    super(message, opts)
+    this.command = opts.command
+    this.error = opts.error
+    this.arguments = opts.arguments
+    this.cwd = process.cwd()
+    this.path = process.env.PATH
+  }
+}
 
 class Job {
   
@@ -26,31 +38,31 @@ class Job {
     if ( options.command ) this.setCommand(options.command) // array of [ cmd, ...arg ]
   }
 
-  get command(){      return this._command }
+  get command(){ return this._command }
   setCommand( command_arr ){
     if ( command_arr instanceof Array === false ) throw new Error('command not an Array')
     return this._command = command_arr
   }
 
-  get cmd(){          return this._command[0] }
-  get args(){         return this._command.slice(1) }
+  get spawn_cmd(){  return this._command[0] }
+  get spawn_args(){ return this._command.slice(1) }
   
-  get output(){       return this._output }
-  get errors(){       return this._errors }
-  get running(){      return this._running }
+  get output(){     return this._output }
+  get errors(){     return this._errors }
+  get running(){    return this._running }
 
-  get timeout_in(){   return this._timeout_in }
-  setTimeoutIn(ms_val){
+  get timeout_in(){ return this._timeout_in }
+  setTimeoutIn( ms_val ){
     return this._timeout_in = ms_val
   }
   
-  get timeout_at(){   return this._timeout_at }
-  setTimeoutAt(ts_val){
+  get timeout_at(){ return this._timeout_at }
+  setTimeoutAt( ts_val ){
     return this._timeout_at = ts_val
   }
 
-  get expires_at(){   return this._expires_at }
-  setExpiresAt(ts_val){
+  get expires_at(){ return this._expires_at }
+  setExpiresAt( ts_val ){
     return this._expires_at = ts_val
   }
   pushExpiry( ms_val ){
@@ -58,8 +70,8 @@ class Job {
     this.expires_at = Date.now() + ms_val
   }
 
-  get expires_in(){   return this._expires_in }
-  setExpiresIn(ms_val){
+  get expires_in(){ return this._expires_in }
+  setExpiresIn( ms_val ){
     return this._expires_in = ms_val
   }
   possiblySetExpiresIn( ms_val ){
@@ -68,22 +80,22 @@ class Job {
   }
 
   get stdout_cb(){ return this._stdout_cb }
-  setStdoutCb(cb){  
+  setStdoutCb( cb ){  
     return this._stdout_cb = cb
   }
 
   get stderr_cb(){ return this._stderr_cb }
-  setStderr_cb(cb){
+  setStderr_cb( cb ){
     return this._stderr_cb = cb
   }
   
-  get close_cb(){  return this._close_cb }
-  setClose_cb(cb){
+  get close_cb(){ return this._close_cb }
+  setClose_cb( cb ){
     return this._close_cb = cb
   }
   
-  get error_cb(){  return this._error_cb }
-  setError_cb(cb){
+  get error_cb(){ return this._error_cb }
+  setError_cb( cb ){
     return this._error_cb = cb
   }
 
@@ -94,7 +106,7 @@ class Job {
 
   run(){
     return new Promise((resolve, reject)=>{
-      let proc = this.proc = cp.spawn(this.cmd, this.args)
+      let proc = this.proc = cp.spawn(this.spawn_cmd, this.spawn_args)
       
       if ( this._timeout_in ) this.setTimeoutAt( Date.now() + this._timeout_in )
 
@@ -150,6 +162,11 @@ class Job {
       })
       
       proc.on('error', err => {
+        if ( err.code === 'ENOENT' && /^spawn /.exec(err.syscall) ){
+          let error = new JobException(`Command not found: "${this.spawn_cmd}"`) // ${this.pwd}`)
+          error.error = err
+          err = error
+        }
         debug('job err', err)
         //err.stack = err.stack
         output.push([ 4, err ])
@@ -165,6 +182,8 @@ class Job {
     o.errors = this._errors
     o.output = this._output
     o.running = this._running
+    o.timeout_at = this._timeout_at
+    o.timeout_in = this._timeout_in
     o.expires_at = this._expires_at
     o.expires_in = this._expires_in
     return o
