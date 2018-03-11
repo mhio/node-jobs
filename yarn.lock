@@ -6,6 +6,14 @@
   version "0.1.5"
   resolved "https://registry.npmjs.org/@mhio/exception/-/exception-0.1.5.tgz#5fb3207a139bdb2e07e851be996060fca0d27600"
 
+"@mhio/spawn@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.npmjs.org/@mhio/spawn/-/spawn-0.3.0.tgz#db0fd563ec22e565ac693d517fd86fb841362a19"
+  dependencies:
+    "@mhio/exception" "^0.1.5"
+    debug "^3.1.0"
+    sinon-chai "^3.0.0"
+
 acorn-jsx@^3.0.0:
   version "3.0.1"
   resolved "https://registry.npmjs.org/acorn-jsx/-/acorn-jsx-3.0.1.tgz#afdf9488fb1ecefc8348f6fb22f464e32a58b36b"
@@ -2216,6 +2224,10 @@ shebang-regex@^1.0.0:
 signal-exit@^3.0.0, signal-exit@^3.0.1, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
+
+sinon-chai@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.npmjs.org/sinon-chai/-/sinon-chai-3.0.0.tgz#d5cbd70fa71031edd96b528e0eed4038fcc99f29"
 
 slice-ansi@1.0.0:
   version "1.0.0"
