@@ -15,6 +15,7 @@ class Job extends Spawn {
   constructor( options = {} ){
     super(options)
     this.id = crypto.randomBytes(3).toString('hex')
+    debug('new Job id: %s', this.id)
     this._expires_in = options.expires_in || (8 * this.constructor.ms_hour)
     this._expires_at = options.expires_at
   }
