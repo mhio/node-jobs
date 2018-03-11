@@ -1,24 +1,17 @@
 const crypto = require('crypto')
-const cp = require('child_process')
 const debug = require('debug')('mhio:job:Job')
-const { Exception } = require('@mhio/exception')
-const { Spawn } = require('@mhio/spawn')
+const { Spawn, SpawnException } = require('@mhio/spawn')
 
 /* JobException for wrapping any Error objects raised here */
-class JobException extends Exception {
-  constructor( message, opts = {} ){
-    super(message, opts)
-    this.command = opts.command
-    this.error = opts.error
-    this.arguments = opts.arguments
-    this.cwd = process.cwd()
-    this.path = process.env.PATH
-  }
-}
+class JobException extends SpawnException {}
 
 /* Job */
 class Job extends Spawn {
   
+  static _classInit(){
+    this.exception_type = JobException
+  }
+
   constructor( options = {} ){
     super(options)
     this.id = crypto.randomBytes(3).toString('hex')
@@ -88,5 +81,6 @@ class Job extends Spawn {
   }
 
 }
+Job._classInit()
 
-module.exports = { Job }
+module.exports = { Job, JobException }
