@@ -23,12 +23,12 @@ import { Job } from '@mhio/job'
 
 let job = new Job({ command: [ 'printf', '%s\n%s\n', 'one', 'two' ] })
 try {
+  console.log('Job ID %s', job.id)
   await job.run() // resolves to the same `job` instance
-  console.log(job.id)
   console.log(job.output)
 } catch (err) {
-  console.error(job.output)
   console.error(err)
+  console.error('Job output', job.output)
 }
 
 ```
