@@ -112,7 +112,7 @@
 
 <a name="Job._classInit"></a>
 
-### Job._classInit()
+### Job.\_classInit()
 <p>Class static initialisation</p>
 
 **Kind**: static method of [<code>Job</code>](#Job)  
