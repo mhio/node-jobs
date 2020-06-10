@@ -4,6 +4,10 @@ const { Job } = require('./Job')
 
 class Jobs {
   
+  static _classInitialisation(){
+    this.prototype.list = this.prototype.listJobIds
+  }
+ 
   constructor(){
     this.jobs = {}
   }
@@ -12,7 +16,7 @@ class Jobs {
    *  @summary List all job ids in array
    *  @returns {Array}
    */
-  list(){
+  listJobIds(){
     return Object.keys(this.jobs)
   }
 
@@ -22,7 +26,7 @@ class Jobs {
    *  @returns undefined
    */
   forEach( cb ){
-    return this.list().forEach(key => cb(this.jobs[key], key))
+    return this.listJobIds().forEach(key => cb(this.jobs[key], key))
   }
 
   /**

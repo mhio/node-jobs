@@ -26,7 +26,8 @@ describe('unit::mhio::job::Job', function(){
     })
 
     it('should dump json', function(){
-      expect( job.toJSON() ).to.eql({
+      expect( job.toJSON() ).to.containSubset({
+        id: v => /^[a-f0-9]{6}$/.exec(v),
         command: [ 'true' ],
         errors: [],
         output: [],

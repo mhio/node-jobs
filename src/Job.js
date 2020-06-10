@@ -45,7 +45,9 @@ class Job extends Spawn {
     return this._expires_at = Date.now() + ms_val
   }
 
-  get expires_in(){ return this._expires_in }
+  get expires_in(){
+    return this._expires_in
+  }
 
   /**
    *  @summary Set the expires in ms value
@@ -82,6 +84,7 @@ class Job extends Spawn {
    */
   toJSON(){
     let o = super.toJSON()
+    o.id = this.id
     o.expires_at = this._expires_at
     o.expires_in = this._expires_in
     return o
